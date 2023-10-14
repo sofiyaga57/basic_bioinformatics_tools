@@ -65,3 +65,21 @@ def filter_length(seqs: dict, length_bounds=(0, 2**32)) -> dict:
         return seqs_filtered
     else:
         raise ValueError("Too strict conditions")
+
+
+def filter_quality(seqs: dict, quality_threshold=0) -> dict:
+    """
+    Filters fastq dictionary by length.
+    :param seqs: dict, fastq dictionary.
+    :param quality_threshold: float, lower limit for filtration. Default value is 0.
+    :return: dict, filtered fastq dictionary.
+    Raises ValueError("Too strict conditions") if the return dictionary is empty.
+    """
+    seqs_filtered = dict()
+    for name, seq in seqs.items():
+        if compute_nucleotide_quality(seq[1]) >= quality_threshold:
+            seqs_filtered[name] = seq
+    if seqs_filtered:
+        return seqs_filtered
+    else:
+        raise ValueError("Too strict conditions")
