@@ -30,3 +30,26 @@ def filter_gc_content(seqs: dict, gc_bounds=None) -> dict:
         raise ValueError("Too strict conditions")
     else:
         return seqs_filtered
+
+
+def filter_length(seqs: dict, length_bounds=(0, 2**32)):
+    """
+    Filters fastq dictionary by length.
+    :param seqs: dict, fastq dictionary.
+    :param length_bounds: float if one value is given (upper limit of filtration),
+    tuple – otherwise (bounds of filtration). Default value is (0, 2**32).
+    :return: dict. Filtered fastq dictionary.
+    Raises ValueError("Too strict conditions") if the return dictionary is empty.
+    """
+    seqs_filtered: dict = dict()
+    for name, seq in seqs.items():
+        if type(length_bounds) == tuple:
+            if length_bounds[0] <= len(seq[0]) <= length_bounds[1]:
+                seqs_filtered[name] = seq
+        else:
+            if len(seq[0]) <= length_bounds:
+                seqs_filtered[name] = seq
+    if seqs_filtered:
+        return seqs_filtered
+    else:
+        raise ValueError("Too strict conditions")
