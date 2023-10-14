@@ -1,19 +1,19 @@
-#basic_bioinformatics_tools.py
+# basic_bioinformatics_tools.py
 
 **basic_bioinformatic_tools** is a tool which allows fresh bioinformatics to try their hand in working with DNA, RNA, protein sequences, as well as with fastq files-dictionaries.
 
 This tools consists of three modules discussed in great detail below:
-1) dna_rna_tools.py
-2) protein_tools.py
-3) fastq_tools.py
+1) `dna_rna_tools.py`
+2) `protein_tools.py`
+3) `fastq_tools.py`
 
-Script basic_bioinformatics_tools.py import three main functions from these three modules.
+Script `basic_bioinformatics_tools.py` imports three main functions from these three modules.
 
 ## dna_rna_tools.py
 
 ### Usage
 
-This utility is realized inside the file dna_rna_tools.py. This program contains the main function run_dna_rna_tools, as well as other additional functions described below. 
+This utility is realized inside the file `dna_rna_tools.py`. This program contains the main function `run_dna_rna_tools`, as well as other additional functions described below. 
 The function takes as input an arbitrary number of arguments with DNA or RNA sequences in str format, the last argument being the name of the str-formatted procedure to be implemented.
 If one sequence is input, a string with the result is returned, if several sequences are input, an array of strings with the result is returned. 
 If a string that does not match DNA or RNA is input (the sequence contains letters other than ATGCU, or the sequence contains U and T at the same time), ValueError: Not a nucleic acid is returned. 
