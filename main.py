@@ -7,6 +7,18 @@ def compute_gc_content(seq: str) -> float:
     return ((seq.count('G') + seq.count('C')) / len(seq)) * 100
 
 
+def compute_nucleotide_quality(seq: str) -> float:
+    """
+    Computes average nucleotide phred33 quality.
+    :param seq: str, quality sequence
+    :return: int, computed average quality
+    """
+    quality = 0
+    for nucleotide in list(seq):
+        quality += ord(nucleotide) - 33
+    return quality/len(seq)
+
+
 def filter_gc_content(seqs: dict, gc_bounds=None) -> dict:
     """
     Filters fastq dictionary by GC-content.
