@@ -24,7 +24,7 @@ def filter_gc_content(seqs: dict, gc_bounds=None) -> dict:
     Filters fastq dictionary by GC-content.
     :param seqs: dict, fastq dictionary.
     :param gc_bounds: float if one value is given (upper limit of filtration),
-    tuple – otherwise (bounds of filtration). If no arguments are given, returns input dictionary.
+    tuple – otherwise (bounds of filtration). If no arguments are given, default value is None, returns input dictionary.
     :return: dict, filtered fastq dictionary.
     Raises ValueError("Too strict conditions") if the return dictionary is empty.
     """
@@ -75,7 +75,7 @@ def filter_quality(seqs: dict, quality_threshold=0) -> dict:
     :return: dict, filtered fastq dictionary.
     Raises ValueError("Too strict conditions") if the return dictionary is empty.
     """
-    seqs_filtered = dict()
+    seqs_filtered: dict = dict()
     for name, seq in seqs.items():
         if compute_nucleotide_quality(seq[1]) >= quality_threshold:
             seqs_filtered[name] = seq
@@ -83,3 +83,20 @@ def filter_quality(seqs: dict, quality_threshold=0) -> dict:
         return seqs_filtered
     else:
         raise ValueError("Too strict conditions")
+
+
+def run_fastq_tool(seqs: dict, gc_bounds=None, length_bounds=(0, 2**32), quality_threshold=0) -> dict:
+    """
+    Filters fastq dictionary by GC content, length, and quality.
+    :param seqs: dict, fastq dictionary.
+    :param gc_bounds: float if one value is given (upper limit of filtration),
+    tuple – otherwise (bounds of filtration). If no arguments are given, default value is None, returns input dictionary.
+    :param quality_threshold: float, lower limit for filtration. Default value is 0.
+    :param length_bounds: float if one value is given (upper limit of filtration),
+    tuple – otherwise (bounds of filtration). Default value is (0, 2**32).
+    :return: dict, filtered fastq dictionary.
+    Raises ValueError("Too strict conditions") if the return dictionary in any of the functions is empty.
+    """
+    filtered_fastq = filter_quality(filter_gc_content(filter_length(seqs, length_bounds=length_bounds),
+                                                      gc_bounds=gc_bounds), quality_threshold=quality_threshold)
+    return filtered_fastq
