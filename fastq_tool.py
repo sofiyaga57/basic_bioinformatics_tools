@@ -30,9 +30,9 @@ def filter_gc_content(seqs: dict, gc_bounds=None) -> dict:
     """
     if gc_bounds is None:
         return seqs
-    seqs_filtered: dict = dict()
+    seqs_filtered: dict = {}
     for name, seq in seqs.items():
-        if type(gc_bounds) == tuple:
+        if isinstance(gc_bounds, tuple):
             if gc_bounds[0] <= compute_gc_content(seq[0]) <= gc_bounds[1]:
                 seqs_filtered[name] = seq
         else:
@@ -40,8 +40,7 @@ def filter_gc_content(seqs: dict, gc_bounds=None) -> dict:
                 seqs_filtered[name] = seq
     if not seqs_filtered:
         raise ValueError("Too strict conditions")
-    else:
-        return seqs_filtered
+    return seqs_filtered
 
 
 def filter_length(seqs: dict, length_bounds=(0, 2**32)) -> dict:
@@ -53,18 +52,17 @@ def filter_length(seqs: dict, length_bounds=(0, 2**32)) -> dict:
     :return: dict, filtered fastq dictionary.
     Raises ValueError("Too strict conditions") if the return dictionary is empty.
     """
-    seqs_filtered: dict = dict()
+    seqs_filtered: dict = {}
     for name, seq in seqs.items():
-        if type(length_bounds) == tuple:
+        if isinstance(length_bounds, tuple):
             if length_bounds[0] <= len(seq[0]) <= length_bounds[1]:
                 seqs_filtered[name] = seq
         else:
             if len(seq[0]) <= length_bounds:
                 seqs_filtered[name] = seq
-    if seqs_filtered:
-        return seqs_filtered
-    else:
+    if not seqs_filtered:
         raise ValueError("Too strict conditions")
+    return seqs_filtered
 
 
 def filter_quality(seqs: dict, quality_threshold=0) -> dict:
@@ -75,14 +73,13 @@ def filter_quality(seqs: dict, quality_threshold=0) -> dict:
     :return: dict, filtered fastq dictionary.
     Raises ValueError("Too strict conditions") if the return dictionary is empty.
     """
-    seqs_filtered: dict = dict()
+    seqs_filtered: dict = {}
     for name, seq in seqs.items():
         if compute_nucleotide_quality(seq[1]) >= quality_threshold:
             seqs_filtered[name] = seq
-    if seqs_filtered:
-        return seqs_filtered
-    else:
+    if not seqs_filtered:
         raise ValueError("Too strict conditions")
+    return seqs_filtered
 
 
 def run_fastq_tool(seqs: dict, gc_bounds=None, length_bounds=(0, 2**32), quality_threshold=0) -> dict:
