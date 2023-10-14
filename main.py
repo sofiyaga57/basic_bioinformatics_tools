@@ -1,7 +1,7 @@
 def compute_gc_content(seq: str) -> float:
     """
     Computes GC-content of the input sequence.
-    :param seq: nucleotide sequence
+    :param seq: str, nucleotide sequence
     :return: float, result of computation
     """
     return ((seq.count('G') + seq.count('C')) / len(seq)) * 100
@@ -25,7 +25,7 @@ def filter_gc_content(seqs: dict, gc_bounds=None) -> dict:
     :param seqs: dict, fastq dictionary.
     :param gc_bounds: float if one value is given (upper limit of filtration),
     tuple – otherwise (bounds of filtration). If no arguments are given, returns input dictionary.
-    :return: dict. Filtered fastq dictionary.
+    :return: dict, filtered fastq dictionary.
     Raises ValueError("Too strict conditions") if the return dictionary is empty.
     """
     if gc_bounds is None:
@@ -44,13 +44,13 @@ def filter_gc_content(seqs: dict, gc_bounds=None) -> dict:
         return seqs_filtered
 
 
-def filter_length(seqs: dict, length_bounds=(0, 2**32)):
+def filter_length(seqs: dict, length_bounds=(0, 2**32)) -> dict:
     """
     Filters fastq dictionary by length.
     :param seqs: dict, fastq dictionary.
     :param length_bounds: float if one value is given (upper limit of filtration),
     tuple – otherwise (bounds of filtration). Default value is (0, 2**32).
-    :return: dict. Filtered fastq dictionary.
+    :return: dict, filtered fastq dictionary.
     Raises ValueError("Too strict conditions") if the return dictionary is empty.
     """
     seqs_filtered: dict = dict()
