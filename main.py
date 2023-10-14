@@ -11,8 +11,10 @@ def filter_gc_content(seqs: dict, gc_bounds=None) -> dict:
     """
     Filters fastq dictionary by GC-content.
     :param seqs: dict, fastq dictionary.
-    :param gc_bounds: int or tuple
-    :return: dict. Filtered fastq dictionary. If gc_bounds is not defined, returns input dictionary.
+    :param gc_bounds: float if one value is given (upper limit of filtration),
+    tuple – otherwise (bounds of filtration). If no arguments are given, returns input dictionary.
+    :return: dict. Filtered fastq dictionary.
+    Raises ValueError("Too strict conditions") if the return dictionary is empty.
     """
     if gc_bounds is None:
         return seqs
