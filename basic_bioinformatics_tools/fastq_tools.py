@@ -118,6 +118,23 @@ def read_fastq_file(input_path: str) -> dict:
     return fastq_data
 
 
+def write_fastq(fastq_data: dict, output_filename: str):
+    """
+    Writes fastq dictionary into the fastq file
+    :param fastq_data: dict, fastq data
+    :param output_filename: str, name of the output fastq file.
+    """
+    with open(output_filename, 'w') as fastq_file:
+        for key, value in fastq_data.items():
+            name = key
+            sequence = value[0]
+            quality = value[1]
+            fastq_file.write(f'@{name}\n')
+            fastq_file.write(f'{sequence}\n')
+            fastq_file.write('+\n')
+            fastq_file.write(f'{quality}\n')
+
+
 def run_fastq_tools(input_path: str, output_filename=None,
                     gc_bounds=None, length_bounds=(0, 2**32), quality_threshold=0):
     """
