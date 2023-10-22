@@ -1,3 +1,6 @@
+import os
+
+
 def compute_gc_content(seq: str) -> float:
     """
     Computes GC-content of the input sequence.
@@ -82,7 +85,41 @@ def filter_quality(seqs: dict, quality_threshold=0) -> dict:
     return seqs_filtered
 
 
-def run_fastq_tools(seqs: dict, gc_bounds=None, length_bounds=(0, 2**32), quality_threshold=0) -> dict:
+def read_fastq_file(input_path: str) -> dict:
+    """
+    Reads a Fastq file and converts it into a dictionary sequentially.
+    :param input_path: str, path to the input Fastq file.
+    :return: dict, Fastq data in dictionary format.
+    """
+    fastq_data = {}
+
+    with open(input_path, 'r') as file:
+        header = False
+        sequence = False
+        comment = False
+        quality = False
+
+        for line in file:
+            line = line.strip()
+            if not header:
+                header = line.strip('@')
+            elif not sequence:
+                sequence = line
+            elif not comment:
+                comment = line
+            elif not quality:
+                quality = line
+                fastq_data[header] = [sequence, quality]
+                header = False
+                sequence = False
+                comment = False
+                quality = False
+
+    return fastq_data
+
+
+def run_fastq_tools(input_path: str, output_filename=None,
+                    gc_bounds=None, length_bounds=(0, 2**32), quality_threshold=0):
     """
     Filters fastq dictionary by GC content, length, and quality.
     :param seqs: dict, fastq dictionary.
@@ -97,5 +134,3 @@ def run_fastq_tools(seqs: dict, gc_bounds=None, length_bounds=(0, 2**32), qualit
     filtered_fastq = filter_quality(filter_gc_content(filter_length(seqs, length_bounds=length_bounds),
                                                       gc_bounds=gc_bounds), quality_threshold=quality_threshold)
     return filtered_fastq
-
-
