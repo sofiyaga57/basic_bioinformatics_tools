@@ -51,3 +51,71 @@ def convert_multiline_fasta_to_oneline(input_fasta: str, output_fasta=None):
     fasta_data = read_fasta_file(input_fasta)
     write_fasta_file(fasta_data=fasta_data, output_fasta=output_path)
 
+
+def select_genes_from_gbk_to_list(input_gbk: str) -> list:
+    """
+    Selects gene's name and its translation into list
+    :param input_gbk: str, name of input gbk file
+    Returns list
+    """
+
+    gene_data = []
+    in_cds = False
+    in_translation = False
+    current_gene = 'unknown'
+
+    with open(input_gbk, mode='r') as gbk_file:
+        for line in gbk_file:
+            line = line.strip()
+            if line.startswith("CDS"):
+                in_cds = True
+            if in_cds and line.startswith("/gene"):
+                current_gene = line.split('gene="')[-1].split('"')[0]
+            if in_cds and line.startswith("/translation"):
+                in_translation = True
+                current_translation = line.split('"/translation="')[-1].split('"')[1]
+                continue
+            if in_cds and in_translation:
+                if line.endswith('"'):
+                    current_translation += line.split(' ')[-1].split('"')[0]
+                    in_translation = False
+                    in_cds = False
+                    gene_data.append(current_gene)
+                    gene_data.append(current_translation)
+                    current_gene = 'unknown'
+                else:
+                    current_translation += line
+
+    return gene_data
+
+
+def record_gene_translations(gene_data: list, genes: list, output_fasta: str, before=1, after=1):
+    """
+    Records translations of genes nearby the gene of interest into fasta file
+    :param gene_data: list, list of gene's name and its translations
+    :param genes: list, genes of interest
+    :param before: int, number of genes to be recorded before the gene of interest
+    :param after: int, number of genes to be recorded after the gene of interest
+    :param output_fasta: str, name of output fasta file
+    Returns fasta file
+    """
+
+    seq_num = 0  # index of sequence in fasta file
+
+    with open(output_fasta, mode='w') as fasta_file:
+        for interest_gene in genes:
+            for k in range(len(gene_data)):
+                if interest_gene in gene_data[k]:
+                    index = k
+                    left_index = index - 2 * before
+                    right_index = index + 2 * after  # define ranges for genes to write into fasta file
+                    for i in range(left_index + 1, index, 2):
+                        seq_num += 1
+                        fasta_file.write(f">seq{seq_num}\n")
+                        fasta_file.write(f"{gene_data[i]}\n")
+                    for j in range(right_index + 1, index + 1, -2):
+                        seq_num += 1
+                        fasta_file.write(f">seq{seq_num}\n")
+                        fasta_file.write(f"{gene_data[j]}\n")
+
+
