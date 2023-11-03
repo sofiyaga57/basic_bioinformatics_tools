@@ -10,6 +10,7 @@ def read_fasta_file(input_fasta: str) -> dict:
     with open(os.path.abspath(input_fasta), mode='r') as fasta_file:
         fasta_data = {}
         current_name = None
+        seq = []
         for line in fasta_file:
             line.strip()
             if line.startswith('>'):
@@ -41,7 +42,7 @@ def convert_multiline_fasta_to_oneline(input_fasta: str, output_fasta=None):
     Converts multiline fasta file to oneline fasta file
     :param input_fasta: str, name of input fasta file with .fasta
     :param output_fasta: str, name of output fasta file without .fasta
-    Returns file
+    Returns file, names of sequences are seq1, seq2, etc.
     """
     input_fasta = os.path.abspath(input_fasta)
     if output_fasta is None:
@@ -52,7 +53,7 @@ def convert_multiline_fasta_to_oneline(input_fasta: str, output_fasta=None):
     write_fasta_file(fasta_data=fasta_data, output_fasta=output_path)
 
 
-def select_genes_from_gbk_to_list(input_gbk: str) -> list:
+def select_genes_from_gbk_to_fasta(input_gbk: str) -> list:
     """
     Selects gene's name and its translation into list
     :param input_gbk: str, name of input gbk file
@@ -119,3 +120,55 @@ def record_gene_translations(gene_data: list, genes: list, output_fasta: str, be
                         fasta_file.write(f"{gene_data[j]}\n")
 
 
+def select_genes_from_gbk_to_file(input_gbk, genes, n_before=1, n_after=1, output_fasta=None):
+    input_gbk = os.path.abspath(input_gbk)
+    if output_fasta is None:
+        output_fasta = os.path.splitext(os.path.basename(input_gbk))[0]
+    output_path = os.path.join(output_fasta + '.fasta')
+
+    gene_data = select_genes_from_gbk_to_fasta(input_gbk=input_gbk)
+    record_gene_translations(gene_data=gene_data, genes=genes, before=n_before,
+                             after=n_after, output_fasta=output_path)
+
+
+def shift_sequence(seq: str, shift: int) -> str:
+    """
+    Records translations of genes nearby the gene of interest into fasta file
+    :param seq: str, sequence to shift
+    :param  shift: int, how many nucleotides to shift
+    Returns str, shifted sequence
+    """
+    seq_list = list(seq)
+    shift = shift % len(seq)
+    if shift > 0:
+        for i in range(shift):
+            seq_list.insert(0, seq_list.pop())
+    else:
+        shift = abs(shift)
+        for i in range(shift):
+            seq_list.insert(len(seq_list)-1, seq_list.pop(0))
+    return ''.join(seq_list)
+
+
+def change_fasta_start_pos(input_fasta: str, shift: int, output_fasta=None):
+    """
+    Records translations of genes nearby the gene of interest into fasta file
+    :param input_fasta: str, input fasta file
+    :param shift: int, how many nucleotides to shift
+    :param output_fasta; str, name of output_file, without .fasta, optional.
+    If not mentioned, input_fasta name is used.
+    Return fasta file with shifted sequence.
+    """
+
+    shifted_fasta_data = {}
+
+    input_fasta = os.path.abspath(input_fasta)
+    if output_fasta is None:
+        output_fasta = os.path.splitext(os.path.basename(input_fasta))[0]
+    output_path = os.path.join(f'{output_fasta}.fasta')
+
+    fasta_data = read_fasta_file(input_fasta=input_fasta)
+    sequence, name = list(fasta_data.values())[0], list(fasta_data.keys())[0]
+    shifted_seq = shift_sequence(seq=sequence, shift=shift)
+    shifted_fasta_data[name] = shifted_seq
+    write_fasta_file(fasta_data=shifted_fasta_data, output_fasta=output_path)
