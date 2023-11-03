@@ -142,7 +142,7 @@ def select_genes_from_gbk_to_fasta(input_gbk: str, genes: list, n_before=1, n_af
 
 def shift_sequence(seq: str, shift: int) -> str:
     """
-    Records translations of genes nearby the gene of interest into fasta file
+    Shift input sequence by an input number.
     :param seq: str, sequence to shift
     :param  shift: int, how many nucleotides to shift
     Returns str, shifted sequence
