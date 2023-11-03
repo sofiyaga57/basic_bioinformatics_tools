@@ -120,7 +120,16 @@ def record_gene_translations(gene_data: list, genes: list, output_fasta: str, be
                         fasta_file.write(f"{gene_data[j]}\n")
 
 
-def select_genes_from_gbk_to_fasta(input_gbk, genes, n_before=1, n_after=1, output_fasta=None):
+def select_genes_from_gbk_to_fasta(input_gbk: str, genes: list, n_before=1, n_after=1, output_fasta=None):
+    """
+    Selects genes surrounding genes of interest.
+    :param input_gbk: file in a gbk format
+    :param genes: list, genes of interest
+    :param n_before: int, number of genes to be recorded before the gene of interest
+    :param n_after: int, number of genes to be recorded after the gene of interest
+    :param output_fasta: str, name of output fasta file without .fasta
+    Returns fasta file
+    """
     input_gbk = os.path.abspath(input_gbk)
     if output_fasta is None:
         output_fasta = os.path.splitext(os.path.basename(input_gbk))[0]
@@ -165,7 +174,7 @@ def change_fasta_start_pos(input_fasta: str, shift: int, output_fasta=None):
     input_fasta = os.path.abspath(input_fasta)
     if output_fasta is None:
         output_fasta = os.path.splitext(os.path.basename(input_fasta))[0]
-    output_path = os.path.join(f'{output_fasta}.fasta')
+    output_path = os.path.join(f'{output_fasta}_shifted.fasta')
 
     fasta_data = read_fasta_file(input_fasta=input_fasta)
     sequence, name = list(fasta_data.values())[0], list(fasta_data.keys())[0]
