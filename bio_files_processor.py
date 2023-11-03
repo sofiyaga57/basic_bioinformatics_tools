@@ -53,7 +53,7 @@ def convert_multiline_fasta_to_oneline(input_fasta: str, output_fasta=None):
     write_fasta_file(fasta_data=fasta_data, output_fasta=output_path)
 
 
-def select_genes_from_gbk_to_fasta(input_gbk: str) -> list:
+def select_genes_from_gbk_to_list(input_gbk: str) -> list:
     """
     Selects gene's name and its translation into list
     :param input_gbk: str, name of input gbk file
@@ -120,13 +120,13 @@ def record_gene_translations(gene_data: list, genes: list, output_fasta: str, be
                         fasta_file.write(f"{gene_data[j]}\n")
 
 
-def select_genes_from_gbk_to_file(input_gbk, genes, n_before=1, n_after=1, output_fasta=None):
+def select_genes_from_gbk_to_fasta(input_gbk, genes, n_before=1, n_after=1, output_fasta=None):
     input_gbk = os.path.abspath(input_gbk)
     if output_fasta is None:
         output_fasta = os.path.splitext(os.path.basename(input_gbk))[0]
     output_path = os.path.join(output_fasta + '.fasta')
 
-    gene_data = select_genes_from_gbk_to_fasta(input_gbk=input_gbk)
+    gene_data = select_genes_from_gbk_to_list(input_gbk=input_gbk)
     record_gene_translations(gene_data=gene_data, genes=genes, before=n_before,
                              after=n_after, output_fasta=output_path)
 
