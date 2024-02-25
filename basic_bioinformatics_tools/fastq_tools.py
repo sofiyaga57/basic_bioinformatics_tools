@@ -1,3 +1,6 @@
+import os
+
+
 def compute_gc_content(seq: str) -> float:
     """
     Computes GC-content of the input sequence.
@@ -81,20 +84,83 @@ def filter_quality(seqs: dict, quality_threshold=0) -> dict:
     return seqs_filtered
 
 
-def run_fastq_tools(seqs: dict, gc_bounds=None, length_bounds=(0, 2**32), quality_threshold=0) -> dict:
+def read_fastq_file(input_path: str) -> dict:
     """
-    Filters fastq dictionary by GC content, length, and quality.
-    :param seqs: dict, fastq dictionary.
+    Reads a Fastq file and converts it into a dictionary sequentially.
+    :param input_path: str, path to the input Fastq file.
+    :return: dict, Fastq data in dictionary format.
+    """
+    fastq_data = {}
+
+    with open(input_path, 'r') as file:
+        header = False
+        sequence = False
+        comment = False
+        quality = False
+
+        for line in file:
+            line = line.strip()
+            if not header:
+                header = line.strip('@')
+            elif not sequence:
+                sequence = line
+            elif not comment:
+                comment = line
+            elif not quality:
+                quality = line
+                fastq_data[header] = [sequence, quality]
+                header = False
+                sequence = False
+                comment = False
+                quality = False
+
+    return fastq_data
+
+
+def write_fastq(fastq_data: dict, output_filename: str):
+    """
+    Writes fastq dictionary into the fastq file
+    :param fastq_data: dict, fastq data
+    :param output_filename: str, name of the output fastq file.
+    """
+    with open(output_filename, 'w') as fastq_file:
+        for key, value in fastq_data.items():
+            name = key
+            sequence = value[0]
+            quality = value[1]
+            fastq_file.write(f'@{name}\n')
+            fastq_file.write(f'{sequence}\n')
+            fastq_file.write('+\n')
+            fastq_file.write(f'{quality}\n')
+
+
+def run_fastq_tools(input_path: str, output_filename=None,
+                    gc_bounds=None, length_bounds=(0, 2 ** 32), quality_threshold=0):
+    """
+    Filters fastq file by GC content, length, and quality.
+    :param input_path: str, path to fastq_file.
+    :param output_filename: str, name of output fastq file with filtered data.
+    Optional, takes input file name if not mentioned otherwise.
     :param gc_bounds: float if one value is given (upper limit of filtration),
     tuple – otherwise (bounds of filtration). If no arguments are given, default value is None, returns input dictionary.
     :param quality_threshold: float, lower limit for filtration. Default value is 0.
     :param length_bounds: float if one value is given (upper limit of filtration),
     tuple – otherwise (bounds of filtration). Default value is (0, 2**32).
-    :return: dict, filtered fastq dictionary.
+    :return: fastq file in fastq_filtrator_results folder.
     Raises ValueError("Too strict conditions") if the return dictionary in any of the functions is empty.
     """
-    filtered_fastq = filter_quality(filter_gc_content(filter_length(seqs, length_bounds=length_bounds),
+    input_path = os.path.abspath(input_path)
+
+    if not os.path.exists('fastq_filtrator_results'):
+        os.mkdir('fastq_filtrator_results')
+
+    if output_filename is None:
+        output_filename = os.path.basename(input_path)
+
+    output_path = os.path.join('fastq_filtrator_results', output_filename + '.fastq')
+
+    fastq_dict = read_fastq_file(input_path=input_path)
+    filtered_fastq = filter_quality(filter_gc_content(filter_length(fastq_dict, length_bounds=length_bounds),
                                                       gc_bounds=gc_bounds), quality_threshold=quality_threshold)
-    return filtered_fastq
 
-
+    write_fastq(filtered_fastq, output_path)
