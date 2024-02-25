@@ -31,12 +31,11 @@ def filter_gc_content(seqs: dict, gc_bounds=None) -> dict:
     if gc_bounds is None:
         return seqs
     seqs_filtered: dict = {}
+    if not isinstance(gc_bounds, tuple):
+         gc_bounds = (0, gc_bounds)
+         
     for name, seq in seqs.items():
-        if isinstance(gc_bounds, tuple):
             if gc_bounds[0] <= compute_gc_content(seq[0]) <= gc_bounds[1]:
-                seqs_filtered[name] = seq
-        else:
-            if compute_gc_content(seq[0]) <= gc_bounds:
                 seqs_filtered[name] = seq
     if not seqs_filtered:
         raise ValueError("Too strict conditions")
